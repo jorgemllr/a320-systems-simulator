@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airbus A320 Cockpit Systems Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- HEADER PRINCIPAL -->
+        <header>
+            <div class="header-logo">
+                <span class="airplane-icon">✈️</span>
+                <h1>AIRBUS A320 <span class="accent"> cockpit systems simulator</span></h1>
+            </div>
+            <div class="system-status">
+                <div class="status-indicator" id="master-caution">MASTER CAUTION</div>
+                <div class="status-indicator" id="master-warning">MASTER WARNING</div>
+                <div class="sim-clock">UTC: <span id="clock-time">17:26:00</span></div>
+            </div>
+        </header>
+
+        <!-- CONTENIDO CENTRAL -->
+        <main>
+            <!-- SECCIÓN IZQUIERDA: PANELES OVERHEAD (CONTROLES) -->
+            <section id="overhead-panel">
+                <div class="panel-section-title">OVERHEAD PANEL (30VU / 40VU)</div>
+                
+                <div class="panel-grid">
+                    <!-- 1. PANEL AIR COND / BLEED (ATA 36 / 21) -->
+                    <div class="korry-panel horizontal-panel" id="panel-bleed" style="width: 600px; height: 260px;">
+                        <!-- DZUS Fasteners -->
+                        <div class="dzus-screw dzus-top-l"></div>
+                        <div class="dzus-screw dzus-top-r"></div>
+                        <div class="dzus-screw dzus-bot-l"></div>
+                        <div class="dzus-screw dzus-bot-r"></div>
+
+                        <!-- Side labels -->
+                        <div class="panel-side-label left">
+                            <span>A</span><span>I</span><span>R</span><br><span>C</span><span>O</span><span>N</span><span>D</span>
+                        </div>
+                        <div class="panel-side-label right">
+                            <span>A</span><span>I</span><span>R</span><br><span>C</span><span>O</span><span>N</span><span>D</span>
+                        </div>
+
+                        <!-- Synoptic Lines SVG Background -->
+                        <svg class="panel-synoptic-svg" width="600" height="260" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1;">
+                            <!-- Top flow lines -->
+                            <path d="M 75 200 L 75 55 L 515 55 L 515 200" stroke="#00FF00" stroke-width="3" fill="none" />
+                            <path d="M 195 55 L 195 50" stroke="#00FF00" stroke-width="3" fill="none" />
+                            <path d="M 295 55 L 295 50" stroke="#00FF00" stroke-width="3" fill="none" />
+                            <path d="M 395 55 L 395 50" stroke="#00FF00" stroke-width="3" fill="none" />
+                            
+                            <!-- Crossbleed lines -->
+                            <path d="M 75 160 L 515 160" stroke="#00FF00" stroke-width="3" fill="none" />
+                            <path d="M 295 200 L 295 160" stroke="#00FF00" stroke-width="3" fill="none" />
+                            <path d="M 195 200 L 195 160" stroke="#00FF00" stroke-width="3" fill="none" />
+                            
+                            <!-- Valve Symbols (small circles on overhead synoptic) -->
+                            <circle cx="75" cy="120" r="5" fill="#00FF00" />
+                            <circle cx="515" cy="120" r="5" fill="#00FF00" />
+                            
+                            <!-- Labels printed on synoptic -->
+                            <text x="95" y="152" fill="#00FF00" font-family="Inter" font-size="7" font-weight="bold">START ◀</text>
+                            <text x="495" y="152" fill="#00FF00" font-family="Inter" font-size="7" font-weight="bold" text-anchor="end">▶ START</text>
+                            <text x="245" y="152" fill="#00FF00" font-family="Inter" font-size="7" font-weight="bold" text-anchor="middle">GND HP ▼</text>
+                        </svg>
+
+                        <!-- Controls Overlay (Absolute Positioning for perfect alignment with background synoptic) -->
+                        <div class="panel-controls-container" style="position: relative; width: 100%; height: 100%; z-index: 2;">
+                            
+                            <!-- PACK FLOW (x=75, y=55) -->
+                            <div class="control-group-abs" style="position: absolute; left: 35px; top: 55px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 31px; white-space: nowrap;">PACK FLOW</div>
+                                <span style="color:#00FF00; font-size:7px; font-weight:bold; position: absolute; bottom: 21px; white-space: nowrap;">NORM</span>
+                                <div class="rotary-switch selector-3pos" id="pack-flow-selector" data-pos="1" style="position: absolute; width: 50px; height: 50px;">
+                                    <div class="knob"></div>
+                                    <div class="ticks">
+                                        <span class="tick" data-val="LO" style="left: -8px; top: 18px; font-size:7px;">LO</span>
+                                        <span class="tick active" data-val="NORM" style="left: 14px; top: -11px; font-size:7px;">NORM</span>
+                                        <span class="tick" data-val="HI" style="right: -8px; top: 18px; font-size:7px;">HI</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- COCKPIT TEMP (x=195, y=55) -->
+                            <div class="control-group-abs" style="position: absolute; left: 155px; top: 55px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 28px; white-space: nowrap;">COCKPIT</div>
+                                <div class="rotary-switch temp-knob" id="temp-ckpt" data-val="20" style="position: absolute; width: 44px; height: 44px;">
+                                    <div class="knob"></div>
+                                    <span class="tick" style="left: -12px; bottom: 0px; font-size:7px; color:#aaa;">COLD</span>
+                                    <span class="tick" style="right: -12px; bottom: 0px; font-size:7px; color:#aaa;">HOT</span>
+                                </div>
+                            </div>
+
+                            <!-- FWD CABIN TEMP (x=295, y=55) -->
+                            <div class="control-group-abs" style="position: absolute; left: 255px; top: 55px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 28px; white-space: nowrap;">FWD CABIN</div>
+                                <div class="rotary-switch temp-knob" id="temp-fwd" data-val="21" style="position: absolute; width: 44px; height: 44px;">
+                                    <div class="knob"></div>
+                                    <span class="tick" style="left: -12px; bottom: 0px; font-size:7px; color:#aaa;">COLD</span>
+                                    <span class="tick" style="right: -12px; bottom: 0px; font-size:7px; color:#aaa;">HOT</span>
+                                </div>
+                            </div>
+
+                            <!-- AFT CABIN TEMP (x=395, y=55) -->
+                            <div class="control-group-abs" style="position: absolute; left: 355px; top: 55px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 28px; white-space: nowrap;">AFT CABIN</div>
+                                <div class="rotary-switch temp-knob" id="temp-aft" data-val="22" style="position: absolute; width: 44px; height: 44px;">
+                                    <div class="knob"></div>
+                                    <span class="tick" style="left: -12px; bottom: 0px; font-size:7px; color:#aaa;">COLD</span>
+                                    <span class="tick" style="right: -12px; bottom: 0px; font-size:7px; color:#aaa;">HOT</span>
+                                </div>
+                            </div>
+
+                            <!-- HOT AIR (x=515, y=55) -->
+                            <div class="control-group-abs" style="position: absolute; left: 475px; top: 55px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">HOT AIR</div>
+                                <button class="korry-btn active" id="btn-hotair" style="position: absolute; width: 38px; height: 38px;">
+                                    <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                    <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                </button>
+                            </div>
+
+                            <!-- PACK 1 (x=75, y=120) -->
+                            <div class="control-group-abs" style="position: absolute; left: 35px; top: 120px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">PACK 1</div>
+                                <button class="korry-btn active" id="btn-pack1" style="position: absolute; width: 38px; height: 38px;">
+                                    <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                    <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                </button>
+                            </div>
+
+                            <!-- PACK 2 (x=515, y=120) -->
+                            <div class="control-group-abs" style="position: absolute; left: 475px; top: 120px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">PACK 2</div>
+                                <button class="korry-btn active" id="btn-pack2" style="position: absolute; width: 38px; height: 38px;">
+                                    <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                    <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                </button>
+                            </div>
+
+                            <!-- RAM AIR (x=195, y=160) -->
+                            <div class="control-group-abs" style="position: absolute; left: 155px; top: 160px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">RAM AIR</div>
+                                <div class="rat-switch-container" style="position: absolute; width: 38px; height: 38px;">
+                                    <div class="ram-air-guard-cage" id="ram-air-guard">
+                                        <div class="guard-cap" style="font-size:6px; color:#fff; font-weight:bold; background-color:rgba(0,0,0,0.7); padding:1px 3px; border-radius:2px;">OPEN</div>
+                                    </div>
+                                    <button class="korry-btn" id="btn-ram-air" style="width:38px; height:38px; position:absolute; top:0; left:0;">
+                                        <span class="lbl-top" style="font-size:7.5px; opacity:0.1;">FAULT</span>
+                                        <span class="lbl-bot" style="font-size:7.5px;">ON</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- APU BLEED (x=295, y=160) -->
+                            <div class="control-group-abs" style="position: absolute; left: 255px; top: 160px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">APU BLEED</div>
+                                <button class="korry-btn" id="btn-apu-bleed" style="position: absolute; width: 38px; height: 38px;">
+                                    <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                    <span class="lbl-bot" style="font-size:7.5px;">ON</span>
+                                </button>
+                            </div>
+
+                            <!-- X BLEED (x=395, y=160) -->
+                            <div class="control-group-abs" style="position: absolute; left: 355px; top: 160px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 31px; white-space: nowrap;">X BLEED</div>
+                                <div class="rotary-switch selector-3pos" id="x-bleed-selector" data-pos="1" style="position: absolute; width: 50px; height: 50px;">
+                                    <div class="knob"></div>
+                                    <div class="ticks">
+                                        <span class="tick" data-val="SHUT" style="left: -12px; top: 18px; font-size:7px;">SHUT</span>
+                                        <span class="tick active" data-val="AUTO" style="left: 14px; top: -11px; font-size:7px;">AUTO</span>
+                                        <span class="tick" data-val="OPEN" style="right: -12px; top: 18px; font-size:7px;">OPEN</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ENG 1 BLEED (x=75, y=200) -->
+                            <div class="control-group-abs" style="position: absolute; left: 35px; top: 200px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">ENG 1 BLEED</div>
+                                <button class="korry-btn active" id="btn-eng1-bleed" style="position: absolute; width: 38px; height: 38px;">
+                                    <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                    <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                </button>
+                            </div>
+
+                            <!-- ENG 2 BLEED (x=515, y=200) -->
+                            <div class="control-group-abs" style="position: absolute; left: 475px; top: 200px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">ENG 2 BLEED</div>
+                                <button class="korry-btn active" id="btn-eng2-bleed" style="position: absolute; width: 38px; height: 38px;">
+                                    <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                    <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+ 
+                     <!-- 2. PANEL ANTI ICE (ATA 30) -->
+                     <div class="korry-panel horizontal-panel" id="panel-antiice" style="width: 600px; height: 120px;">
+                         <!-- DZUS Fasteners -->
+                         <div class="dzus-screw dzus-top-l"></div>
+                         <div class="dzus-screw dzus-top-r"></div>
+                         <div class="dzus-screw dzus-bot-l"></div>
+                         <div class="dzus-screw dzus-bot-r"></div>
+ 
+                         <!-- Side labels -->
+                         <div class="panel-side-label left">
+                             <span>A</span><span>N</span><span>T</span><span>I</span><br><span>I</span><span>C</span><span>E</span>
+                         </div>
+                         <div class="panel-side-label right">
+                             <span>A</span><span>N</span><span>T</span><span>I</span><br><span>I</span><span>C</span><span>E</span>
+                         </div>
+ 
+                         <!-- Absolute layout for perfect matching -->
+                         <div class="panel-controls-container" style="position: relative; width: 100%; height: 100%; z-index: 2;">
+                             
+                             <!-- ENG 1 (x=150, y=65) -->
+                             <div class="control-group-abs" style="position: absolute; left: 110px; top: 65px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">ENG 1</div>
+                                 <button class="korry-btn" id="btn-eng1-antiice" style="position: absolute; width: 38px; height: 38px;">
+                                     <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                     <span class="lbl-bot" style="font-size:7.5px;">ON</span>
+                                 </button>
+                             </div>
+
+                             <!-- WING (x=300, y=65) -->
+                             <div class="control-group-abs" style="position: absolute; left: 260px; top: 65px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">WING</div>
+                                 <button class="korry-btn" id="btn-wing-antiice" style="position: absolute; width: 38px; height: 38px;">
+                                     <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                     <span class="lbl-bot" style="font-size:7.5px;">ON</span>
+                                 </button>
+                             </div>
+
+                             <!-- ENG 2 (x=450, y=65) -->
+                             <div class="control-group-abs" style="position: absolute; left: 410px; top: 65px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">ENG 2</div>
+                                 <button class="korry-btn" id="btn-eng2-antiice" style="position: absolute; width: 38px; height: 38px;">
+                                     <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                     <span class="lbl-bot" style="font-size:7.5px;">ON</span>
+                                 </button>
+                             </div>
+
+                         </div>
+                     </div>
+ 
+                     <!-- 3. PANEL HYDRAULICS (ATA 29) -->
+                     <div class="korry-panel horizontal-panel" id="panel-hyd" style="width: 600px; height: 185px;">
+                         <!-- DZUS Fasteners -->
+                         <div class="dzus-screw dzus-top-l"></div>
+                         <div class="dzus-screw dzus-top-r"></div>
+                         <div class="dzus-screw dzus-bot-l"></div>
+                         <div class="dzus-screw dzus-bot-r"></div>
+ 
+                         <!-- Side labels -->
+                         <div class="panel-side-label left">
+                             <span>H</span><span>Y</span><span>D</span>
+                         </div>
+                         <div class="panel-side-label right">
+                             <span>H</span><span>Y</span><span>D</span>
+                         </div>
+ 
+                         <!-- Absolute layout for perfect matching -->
+                         <div class="panel-controls-container" style="position: relative; width: 100%; height: 100%; z-index: 2;">
+                             
+                             <!-- ENG 1 PUMP (x=120, y=80) -->
+                             <div class="control-group-abs" style="position: absolute; left: 80px; top: 80px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">ENG 1 PUMP</div>
+                                 <button class="korry-btn active" id="btn-eng1-pump" style="position: absolute; width: 38px; height: 38px;">
+                                     <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                     <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                 </button>
+                             </div>
+                             <span class="sub-label green-lbl" style="position: absolute; left: 120px; top: 125px; transform: translateX(-50%); font-size: 8px; font-weight: 800;">GREEN</span>
+
+                             <!-- ELEC PUMP (x=300, y=55) -->
+                             <div class="control-group-abs" style="position: absolute; left: 260px; top: 55px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">ELEC PUMP</div>
+                                 <button class="korry-btn active" id="btn-blue-elec" style="position: absolute; width: 38px; height: 38px;">
+                                     <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                     <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                 </button>
+                             </div>
+
+                             <!-- RAT MAN ON (x=300, y=120) -->
+                             <div class="control-group-abs" style="position: absolute; left: 260px; top: 120px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">RAT MAN ON</div>
+                                 <div class="rat-switch-container" style="position: absolute; width: 38px; height: 38px;">
+                                     <div class="rat-guard" id="rat-guard" style="border-radius:2px;">
+                                         <div class="guard-cap" style="font-size:6px;">PUSH</div>
+                                     </div>
+                                     <button class="rat-btn" id="btn-rat" style="font-size:9px; border-radius:2px; width: 38px; height: 38px;">ON</button>
+                                 </div>
+                             </div>
+                             <span class="sub-label blue-lbl" style="position: absolute; left: 300px; top: 155px; transform: translateX(-50%); font-size: 8px; font-weight: 800;">BLUE</span>
+
+                             <!-- ENG 2 PUMP (x=480, y=55) -->
+                             <div class="control-group-abs" style="position: absolute; left: 440px; top: 55px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">ENG 2 PUMP</div>
+                                 <button class="korry-btn active" id="btn-eng2-pump" style="position: absolute; width: 38px; height: 38px;">
+                                     <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                     <span class="lbl-bot" style="font-size:7.5px;">OFF</span>
+                                 </button>
+                             </div>
+
+                             <!-- YELLOW ELEC (x=480, y=120) -->
+                             <div class="control-group-abs" style="position: absolute; left: 440px; top: 120px; width: 80px; height: 1px; display: flex; justify-content: center; align-items: center;">
+                                 <div class="panel-header-box" style="position: absolute; bottom: 26px; white-space: nowrap;">YELLOW ELEC</div>
+                                 <button class="korry-btn" id="btn-yellow-elec" style="position: absolute; width: 38px; height: 38px;">
+                                     <span class="lbl-top" style="font-size:7.5px;">FAULT</span>
+                                     <span class="lbl-bot" style="font-size:7.5px;">ON</span>
+                                 </button>
+                             </div>
+                             <span class="sub-label yellow-lbl" style="position: absolute; left: 480px; top: 155px; transform: translateX(-50%); font-size: 8px; font-weight: 800;">YELLOW</span>
+
+                         </div>
+                     </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN DERECHA: PANTALLA ECAM Y MANDOS ECP -->
+            <section id="monitoring-display">
+                <!-- PANTALLA ECAM SD -->
+                <div class="ecam-bezel">
+                    <div class="ecam-screen" id="ecam-sd">
+                        <!-- HEADER ECAM COMPARTIDO -->
+                        <div class="ecam-header">
+                            <span class="page-title" id="ecam-title">BLEED</span>
+                            <div class="ecam-memo-area" id="ecam-memo">
+                                <!-- Memos activos -->
+                            </div>
+                        </div>
+
+                        <!-- 1. PÁGINA BLEED (ATA 36) -->
+                        <div class="ecam-page active" id="page-bleed">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <!-- Background (Solid Dark/Black) -->
+                                <rect width="600" height="450" fill="#090A0E" />
+
+                                <defs>
+                                    <!-- Marker for RAM Air flow arrow -->
+                                    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                        <path d="M 0 2 L 8 5 L 0 8 z" fill="#00FF00"/>
+                                    </marker>
+                                </defs>
+                                
+                                <!-- duct-lines-bg: Gray background for ducts when unpressurized -->
+                                <g class="pipes-bg" stroke="#152F1E" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <!-- Engine 1 & 2 main ducts -->
+                                    <path d="M 170 380 L 170 260" />
+                                    <path d="M 430 380 L 430 260" />
+                                    
+                                    <!-- HP branches -->
+                                    <path d="M 170 340 L 210 340 L 210 370" />
+                                    <path d="M 430 340 L 390 340 L 390 370" />
+                                    
+                                    <!-- APU duct -->
+                                    <path d="M 300 340 L 300 260" />
+                                    
+                                    <!-- Crossbleed manifold -->
+                                    <path d="M 170 260 L 430 260" />
+                                    
+                                    <!-- RAM Air line -->
+                                    <path d="M 300 260 L 300 80" />
+                                    
+                                    <!-- Pack lines -->
+                                    <path d="M 170 260 L 170 80" />
+                                    <path d="M 430 260 L 430 80" />
+                                    
+                                    <!-- Top horizontal manifold -->
+                                    <path d="M 170 80 L 430 80" />
+                                </g>
+
+                                <!-- duct-lines-active: Bright green paths when active -->
+                                <g class="pipes-active" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <!-- Engine 1 Bleed paths -->
+                                    <path d="M 170 380 L 170 260" id="flow-left" class="flow-path pneumatic" />
+                                    <!-- Engine 2 Bleed paths -->
+                                    <path d="M 430 380 L 430 260" id="flow-right" class="flow-path pneumatic" />
+                                    <!-- HP branches -->
+                                    <path d="M 170 340 L 210 340 L 210 370" id="flow-hp1" class="flow-path pneumatic" />
+                                    <path d="M 430 340 L 390 340 L 390 370" id="flow-hp2" class="flow-path pneumatic" />
+                                    <!-- APU Bleed path -->
+                                    <path d="M 300 340 L 300 260" id="flow-apu" class="flow-path pneumatic" />
+                                    <!-- Crossbleed path -->
+                                    <path d="M 170 260 L 430 260" id="flow-xbleed" class="flow-path pneumatic" />
+                                    <!-- RAM Air path -->
+                                    <path d="M 300 260 L 300 80" id="flow-ramair" class="flow-path conditioning" />
+                                    <!-- Pack 1 & 2 paths -->
+                                    <path d="M 170 260 L 170 80" id="flow-pack1" class="flow-path conditioning" />
+                                    <path d="M 430 260 L 430 80" id="flow-pack2" class="flow-path conditioning" />
+                                    <!-- Top Manifold -->
+                                    <path d="M 170 80 L 430 80" id="flow-top-manifold" class="flow-path conditioning" />
+                                </g>
+
+                                <!-- Pack 1 & 2 Columns (Green outlines and roofs, matching slide) -->
+                                <path d="M 140 230 L 140 100 L 170 85 L 200 100 L 200 230" fill="none" stroke="#00FF00" stroke-width="1.8" stroke-linejoin="round" />
+                                <path d="M 400 230 L 400 100 L 430 85 L 460 100 L 460 230" fill="none" stroke="#00FF00" stroke-width="1.8" stroke-linejoin="round" />
+
+                                <!-- White outline triangles (above top horizontal line) -->
+                                <polygon points="170,71 165,79 175,79" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                <polygon points="300,71 295,79 305,79" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                <polygon points="430,71 425,79 435,79" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+
+                                <!-- PACK 1 DIALS & READOUTS -->
+                                <!-- Pack 1 Temp Dial (C - H) -->
+                                <g class="dial-group">
+                                    <path d="M 155 140 A 15 15 0 0 1 185 140" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                    <line x1="155" y1="140" x2="158" y2="140" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <line x1="185" y1="140" x2="182" y2="140" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <text x="150" y="143" fill="#FFFFFF" font-family="Inter" font-size="8" font-weight="bold" text-anchor="end">C</text>
+                                    <text x="190" y="143" fill="#FFFFFF" font-family="Inter" font-size="8" font-weight="bold" text-anchor="start">H</text>
+                                    <text x="170" y="120" fill="#00FF00" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle"><tspan id="val-pack1-temp">25</tspan>°C</text>
+                                    <line id="needle-pack1-temp" x1="170" y1="140" x2="170" y2="125" stroke="#00FF00" stroke-width="2.5" stroke-linecap="round" style="transform-origin: 170px 140px; transition: transform 0.3s ease;" />
+                                    <circle cx="170" cy="140" r="2" fill="#00FF00" />
+                                </g>
+
+                                <!-- Pack 1 Compressor Dial (LO - HI) -->
+                                <g class="dial-group">
+                                    <path d="M 155 190 A 15 15 0 0 1 185 190" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                    <line x1="155" y1="190" x2="158" y2="190" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <line x1="185" y1="190" x2="182" y2="190" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <text x="150" y="193" fill="#FFFFFF" font-family="Inter" font-size="7" font-weight="bold" text-anchor="end">LO</text>
+                                    <text x="190" y="193" fill="#FFFFFF" font-family="Inter" font-size="7" font-weight="bold" text-anchor="start">HI</text>
+                                    <text x="170" y="170" fill="#00FF00" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle"><tspan id="val-pack1-comp">85</tspan>°C</text>
+                                    <line id="needle-pack1-comp" x1="170" y1="190" x2="170" y2="175" stroke="#00FF00" stroke-width="2.5" stroke-linecap="round" style="transform-origin: 170px 190px; transition: transform 0.3s ease;" />
+                                    <circle cx="170" cy="190" r="2" fill="#00FF00" />
+                                </g>
+
+                                <!-- PACK 2 DIALS & READOUTS -->
+                                <!-- Pack 2 Temp Dial (C - H) -->
+                                <g class="dial-group">
+                                    <path d="M 415 140 A 15 15 0 0 1 445 140" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                    <line x1="415" y1="140" x2="418" y2="140" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <line x1="445" y1="140" x2="442" y2="140" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <text x="410" y="143" fill="#FFFFFF" font-family="Inter" font-size="8" font-weight="bold" text-anchor="end">C</text>
+                                    <text x="450" y="143" fill="#FFFFFF" font-family="Inter" font-size="8" font-weight="bold" text-anchor="start">H</text>
+                                    <text x="430" y="120" fill="#00FF00" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle"><tspan id="val-pack2-temp">25</tspan>°C</text>
+                                    <line id="needle-pack2-temp" x1="430" y1="140" x2="430" y2="125" stroke="#00FF00" stroke-width="2.5" stroke-linecap="round" style="transform-origin: 430px 140px; transition: transform 0.3s ease;" />
+                                    <circle cx="430" cy="140" r="2" fill="#00FF00" />
+                                </g>
+
+                                <!-- Pack 2 Compressor Dial (LO - HI) -->
+                                <g class="dial-group">
+                                    <path d="M 415 190 A 15 15 0 0 1 445 190" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+                                    <line x1="415" y1="190" x2="418" y2="190" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <line x1="445" y1="190" x2="442" y2="190" stroke="#FFFFFF" stroke-width="1.2" />
+                                    <text x="410" y="193" fill="#FFFFFF" font-family="Inter" font-size="7" font-weight="bold" text-anchor="end">LO</text>
+                                    <text x="450" y="193" fill="#FFFFFF" font-family="Inter" font-size="7" font-weight="bold" text-anchor="start">HI</text>
+                                    <text x="430" y="170" fill="#00FF00" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle"><tspan id="val-pack2-comp">85</tspan>°C</text>
+                                    <line id="needle-pack2-comp" x1="430" y1="190" x2="430" y2="175" stroke="#00FF00" stroke-width="2.5" stroke-linecap="round" style="transform-origin: 430px 190px; transition: transform 0.3s ease;" />
+                                    <circle cx="430" cy="190" r="2" fill="#00FF00" />
+                                </g>
+
+                                <!-- RAM AIR Label -->
+                                <g transform="translate(300, 150)">
+                                    <text x="0" y="0" fill="#FFFFFF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="middle">RAM</text>
+                                    <text x="0" y="12" fill="#FFFFFF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="middle">AIR</text>
+                                </g>
+
+                                <!-- APU Label -->
+                                <text x="300" y="365" fill="#FFFFFF" font-family="Roboto Mono" font-size="12" font-weight="bold" text-anchor="middle">APU</text>
+
+                                <!-- Engine number labels -->
+                                <text x="135" y="365" fill="#FFFFFF" font-family="Roboto Mono" font-size="16" font-weight="bold" text-anchor="middle">1</text>
+                                <text x="465" y="365" fill="#FFFFFF" font-family="Roboto Mono" font-size="16" font-weight="bold" text-anchor="middle">2</text>
+                                
+                                <!-- Engine duct labels -->
+                                <text x="170" y="395" fill="#FFFFFF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="middle">IP</text>
+                                <text x="210" y="382" fill="#FFFFFF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="middle">HP</text>
+                                
+                                <text x="430" y="395" fill="#FFFFFF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="middle">IP</text>
+                                <text x="390" y="382" fill="#FFFFFF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="middle">HP</text>
+
+                                <!-- Pink Wing Anti-Ice boxes with green arrows -->
+                                <g id="wai-ind-l" style="opacity: 0; transition: opacity 0.3s ease;">
+                                    <rect x="40" y="315" width="95" height="30" fill="#090A0E" stroke="#FF00FF" stroke-width="1.8" rx="2" />
+                                    <text x="48" y="327" fill="#FF00FF" font-family="Roboto Mono" font-size="9" font-weight="bold">ANTI</text>
+                                    <text x="48" y="340" fill="#FF00FF" font-family="Roboto Mono" font-size="9" font-weight="bold">ICE</text>
+                                    <text x="120" y="335" fill="#00FF00" font-family="Roboto Mono" font-size="14" font-weight="bold" text-anchor="middle">◀</text>
+                                </g>
+                                <g id="wai-ind-r" style="opacity: 0; transition: opacity 0.3s ease;">
+                                    <rect x="465" y="315" width="95" height="30" fill="#090A0E" stroke="#FF00FF" stroke-width="1.8" rx="2" />
+                                    <text x="512" y="327" fill="#FF00FF" font-family="Roboto Mono" font-size="9" font-weight="bold">ANTI</text>
+                                    <text x="512" y="340" fill="#FF00FF" font-family="Roboto Mono" font-size="9" font-weight="bold">ICE</text>
+                                    <text x="480" y="335" fill="#00FF00" font-family="Roboto Mono" font-size="14" font-weight="bold" text-anchor="middle">▶</text>
+                                </g>
+
+                                <!-- Symmetrical Green Digital Readings Boxes -->
+                                <!-- Left side readings -->
+                                <g transform="translate(98, 295)">
+                                    <rect x="0" y="0" width="45" height="42" fill="#090A0E" stroke="#00FF00" stroke-width="1.5" rx="2" />
+                                    <text class="val green" x="22" y="0" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle">
+                                        <tspan x="22" y="16" id="val-pres-l">0</tspan>
+                                        <tspan x="22" y="34" id="val-temp-l">25</tspan>
+                                    </text>
+                                </g>
+                                <text x="162" y="311" fill="#00D2FF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="end">PSI</text>
+                                <text x="162" y="329" fill="#00D2FF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="end">°C</text>
+
+                                <!-- Right side readings -->
+                                <g transform="translate(457, 295)">
+                                    <rect x="0" y="0" width="45" height="42" fill="#090A0E" stroke="#00FF00" stroke-width="1.5" rx="2" />
+                                    <text class="val green" x="22" y="0" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle">
+                                        <tspan x="22" y="16" id="val-pres-r">0</tspan>
+                                        <tspan x="22" y="34" id="val-temp-r">25</tspan>
+                                    </text>
+                                </g>
+                                <text x="438" y="311" fill="#00D2FF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="start">PSI</text>
+                                <text x="438" y="329" fill="#00D2FF" font-family="Roboto Mono" font-size="9" font-weight="bold" text-anchor="start">°C</text>
+
+                                <!-- APU Pressure reading -->
+                                <g transform="translate(300, 320)">
+                                    <text class="val green" x="0" y="0" fill="#00FF00" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle"><tspan id="val-pres-apu">0</tspan> <tspan fill="#00D2FF" font-size="9">PSI</tspan></text>
+                                </g>
+
+                                <!-- Valve nodes -->
+                                <!-- Pack 1 valve -->
+                                <g id="val-pack1-sd" class="valve-node closed" transform="translate(170, 215)">
+                                    <circle r="10" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-7" y1="0" x2="7" y2="0" class="valve-line" />
+                                </g>
+                                <!-- Pack 2 valve -->
+                                <g id="val-pack2-sd" class="valve-node closed" transform="translate(430, 215)">
+                                    <circle r="10" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-7" y1="0" x2="7" y2="0" class="valve-line" />
+                                </g>
+                                <!-- RAM AIR valve -->
+                                <g id="val-ramair-sd" class="valve-node closed" transform="translate(300, 115)">
+                                    <circle r="9" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-6" y1="0" x2="6" y2="0" class="valve-line" />
+                                </g>
+                                <!-- Crossbleed valve -->
+                                <g id="val-xbleed-sd" class="valve-node valve-horizontal closed" transform="translate(350, 260)">
+                                    <circle r="11" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-8" y1="0" x2="8" y2="0" class="valve-line" />
+                                </g>
+                                <!-- APU Bleed valve -->
+                                <g id="val-apu-bleed-sd" class="valve-node closed" transform="translate(300, 305)">
+                                    <circle r="10" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-7" y1="0" x2="7" y2="0" class="valve-line" />
+                                </g>
+                                <!-- Engine 1 Bleed Valve -->
+                                <g id="val-eng1-bleed-sd" class="valve-node closed" transform="translate(170, 355)">
+                                    <circle r="11" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-8" y1="0" x2="8" y2="0" class="valve-line" />
+                                </g>
+                                <!-- Engine 2 Bleed Valve -->
+                                <g id="val-eng2-bleed-sd" class="valve-node closed" transform="translate(430, 355)">
+                                    <circle r="11" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-8" y1="0" x2="8" y2="0" class="valve-line" />
+                                </g>
+                                <!-- Engine 1 HP Valve -->
+                                <g id="val-hp1-sd" class="valve-node valve-horizontal closed" transform="translate(210, 360)">
+                                    <circle r="9" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-6" y1="0" x2="6" y2="0" class="valve-line" />
+                                </g>
+                                <!-- Engine 2 HP Valve -->
+                                <g id="val-hp2-sd" class="valve-node valve-horizontal closed" transform="translate(390, 360)">
+                                    <circle r="9" fill="#090A0E" stroke="#00FF00" stroke-width="1.8"/>
+                                    <line x1="-6" y1="0" x2="6" y2="0" class="valve-line" />
+                                </g>
+                                
+                                <!-- Static bottom values -->
+                                <g transform="translate(0, 420)" font-family="Roboto Mono" font-size="12" font-weight="bold">
+                                    <text x="60" y="0" fill="#FFFFFF">TAT</text>
+                                    <text x="90" y="0" fill="#00FF00">-16 °C</text>
+                                    
+                                    <text x="60" y="16" fill="#FFFFFF">SAT</text>
+                                    <text x="90" y="16" fill="#00FF00">-43 °C</text>
+                                    
+                                    <text x="230" y="10" fill="#00FF00" font-size="15"><tspan id="val-time-h">17</tspan> H <tspan id="val-time-m">26</tspan></text>
+                                    
+                                    <text x="370" y="10" fill="#FFFFFF">GW</text>
+                                    <text x="410" y="10" fill="#00FF00">56100 KG</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- 2. PÁGINA COND (ATA 21) -->
+                        <div class="ecam-page" id="page-cond">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <g class="pipes-bg" stroke="#333A4A" stroke-width="8" fill="none" stroke-linecap="round">
+                                    <path d="M 120 100 L 120 180 L 300 180" />
+                                    <path d="M 480 100 L 480 180 L 300 180" />
+                                    <path d="M 300 180 L 300 240" />
+                                    <path d="M 300 240 L 120 240 L 120 320" />
+                                    <path d="M 300 240 L 300 320" />
+                                    <path d="M 300 240 L 480 240 L 480 320" />
+                                    <path d="M 220 320 L 220 200 L 285 200" />
+                                    <path d="M 380 320 L 380 200 L 315 200" />
+                                </g>
+
+                                <g class="pipes-active" stroke-width="6" fill="none" stroke-linecap="round">
+                                    <path d="M 120 100 L 120 180 L 300 180" id="flow-cond-pack1" class="flow-path conditioning" />
+                                    <path d="M 480 100 L 480 180 L 300 180" id="flow-cond-pack2" class="flow-path conditioning" />
+                                    <path d="M 300 180 L 300 240" id="flow-mixer" class="flow-path conditioning" />
+                                    <path d="M 300 240 L 120 240 L 120 320" id="flow-cond-ckpt" class="flow-path conditioning" />
+                                    <path d="M 300 240 L 300 320" id="flow-cond-fwd" class="flow-path conditioning" />
+                                    <path d="M 300 240 L 480 240 L 480 320" id="flow-cond-aft" class="flow-path conditioning" />
+                                    <path d="M 220 320 L 220 200 L 285 200" id="flow-recirc1" class="flow-path recirc" />
+                                    <path d="M 380 320 L 380 200 L 315 200" id="flow-recirc2" class="flow-path recirc" />
+                                </g>
+
+                                <g transform="translate(90, 60)" class="pack-node">
+                                    <rect width="60" height="40" fill="#1C212E" stroke="#3E475A" stroke-width="2"/>
+                                    <text x="30" y="25" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle">PACK 1</text>
+                                </g>
+                                <g transform="translate(450, 60)" class="pack-node">
+                                    <rect width="60" height="40" fill="#1C212E" stroke="#3E475A" stroke-width="2"/>
+                                    <text x="30" y="25" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle">PACK 2</text>
+                                </g>
+
+                                <g transform="translate(270, 160)" class="mixer-node">
+                                    <rect width="60" height="40" rx="5" fill="#152B1E" stroke="#00FF00" stroke-width="2"/>
+                                    <text x="30" y="25" fill="#00FF00" font-family="Inter" font-size="11" text-anchor="middle">MIXER</text>
+                                </g>
+
+                                <circle cx="220" cy="210" r="10" fill="#1C212E" stroke="#3E475A" stroke-width="2" />
+                                <text x="220" y="213" fill="#888" font-family="Inter" font-size="8" text-anchor="middle">F1</text>
+                                <circle cx="380" cy="210" r="10" fill="#1C212E" stroke="#3E475A" stroke-width="2" />
+                                <text x="380" y="213" fill="#888" font-family="Inter" font-size="8" text-anchor="middle">F2</text>
+
+                                <g transform="translate(70, 320)" class="zone-node">
+                                    <rect width="100" height="60" rx="8" fill="#111" stroke="#3E475A" stroke-width="2"/>
+                                    <text x="50" y="22" fill="#AAA" font-family="Inter" font-size="12" text-anchor="middle">COCKPIT</text>
+                                    <text x="50" y="48" fill="#00FF00" font-family="Roboto Mono" font-size="18" font-weight="bold" id="cond-temp-ckpt" text-anchor="middle">20°C</text>
+                                </g>
+                                <g transform="translate(250, 320)" class="zone-node">
+                                    <rect width="100" height="60" rx="8" fill="#111" stroke="#3E475A" stroke-width="2"/>
+                                    <text x="50" y="22" fill="#AAA" font-family="Inter" font-size="12" text-anchor="middle">FWD CABIN</text>
+                                    <text x="50" y="48" fill="#00FF00" font-family="Roboto Mono" font-size="18" font-weight="bold" id="cond-temp-fwd" text-anchor="middle">21°C</text>
+                                </g>
+                                <g transform="translate(430, 320)" class="zone-node">
+                                    <rect width="100" height="60" rx="8" fill="#111" stroke="#3E475A" stroke-width="2"/>
+                                    <text x="50" y="22" fill="#AAA" font-family="Inter" font-size="12" text-anchor="middle">AFT CABIN</text>
+                                    <text x="50" y="48" fill="#00FF00" font-family="Roboto Mono" font-size="18" font-weight="bold" id="cond-temp-aft" text-anchor="middle">22°C</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- 3. PÁGINA HYD (ATA 29) -->
+                        <div class="ecam-page" id="page-hyd">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <g class="pipes-bg" stroke="#333A4A" stroke-width="8" fill="none" stroke-linecap="round">
+                                    <path d="M 120 340 L 120 180 L 120 80" />
+                                    <path d="M 300 340 L 300 200 L 300 80" />
+                                    <path d="M 480 340 L 480 180 L 480 80" />
+                                    <path d="M 120 220 L 260 220 M 340 220 L 480 220" />
+                                </g>
+
+                                <g class="pipes-active" stroke-width="6" fill="none" stroke-linecap="round">
+                                    <path d="M 120 340 L 120 180 L 120 80" id="flow-hyd-green" stroke="#00AA00" class="flow-path-static" />
+                                    <path d="M 300 340 L 300 200 L 300 80" id="flow-hyd-blue" stroke="#0000DD" class="flow-path-static" />
+                                    <path d="M 480 340 L 480 180 L 480 80" id="flow-hyd-yellow" stroke="#DDAA00" class="flow-path-static" />
+                                    
+                                    <path d="M 120 220 L 260 220" id="flow-ptu-l" stroke="#00AA00" class="flow-path-static ptu-flow" />
+                                    <path d="M 340 220 L 480 220" id="flow-ptu-r" stroke="#DDAA00" class="flow-path-static ptu-flow" />
+                                </g>
+
+                                <g transform="translate(90, 310)" class="res-node">
+                                    <rect width="60" height="50" fill="#111" stroke="#00FF00" stroke-width="2" id="rect-res-g"/>
+                                    <text x="30" y="30" fill="#00FF00" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle" id="txt-res-g">G</text>
+                                </g>
+                                <g transform="translate(270, 310)" class="res-node">
+                                    <rect width="60" height="50" fill="#111" stroke="#0099FF" stroke-width="2" id="rect-res-b"/>
+                                    <text x="30" y="30" fill="#0099FF" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle" id="txt-res-b">B</text>
+                                </g>
+                                <g transform="translate(450, 310)" class="res-node">
+                                    <rect width="60" height="50" fill="#111" stroke="#FFCC00" stroke-width="2" id="rect-res-y"/>
+                                    <text x="30" y="30" fill="#FFCC00" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle" id="txt-res-y">Y</text>
+                                </g>
+
+                                <g transform="translate(90, 240)" id="pump-edp1" class="pump-symbol active">
+                                    <circle cx="30" cy="25" r="15" fill="#1C212E" stroke="#00FF00" stroke-width="2" id="cir-edp1"/>
+                                    <text x="30" y="29" fill="#00FF00" font-family="Inter" font-weight="bold" font-size="11" text-anchor="middle" id="lbl-edp1">1</text>
+                                </g>
+                                <g transform="translate(270, 240)" id="pump-blue-elec" class="pump-symbol active">
+                                    <circle cx="30" cy="25" r="15" fill="#1C212E" stroke="#0099FF" stroke-width="2" id="cir-blue"/>
+                                    <text x="30" y="29" fill="#0099FF" font-family="Inter" font-weight="bold" font-size="9" text-anchor="middle" id="lbl-blue">ELEC</text>
+                                </g>
+                                <g transform="translate(450, 240)" id="pump-edp2" class="pump-symbol active">
+                                    <circle cx="30" cy="25" r="15" fill="#1C212E" stroke="#FFCC00" stroke-width="2" id="cir-edp2"/>
+                                    <text x="30" y="29" fill="#FFCC00" font-family="Inter" font-weight="bold" font-size="11" text-anchor="middle" id="lbl-edp2">2</text>
+                                </g>
+                                <g transform="translate(450, 160)" id="pump-yellow-elec" class="pump-symbol">
+                                    <circle cx="30" cy="25" r="15" fill="#1C212E" stroke="#3E475A" stroke-width="2" id="cir-yelec"/>
+                                    <text x="30" y="29" fill="#888" font-family="Inter" font-weight="bold" font-size="9" text-anchor="middle" id="lbl-yelec">ELEC</text>
+                                </g>
+
+                                <g transform="translate(270, 150)" id="pump-rat">
+                                    <polygon points="20,30 30,10 40,30" fill="#1C212E" stroke="#3E475A" stroke-width="2" id="ply-rat"/>
+                                    <text x="30" y="42" fill="#888" font-family="Inter" font-size="9" text-anchor="middle" id="lbl-rat">RAT</text>
+                                </g>
+
+                                <g transform="translate(270, 200)" id="sym-ptu">
+                                    <rect x="10" y="10" width="40" height="40" rx="5" fill="#12151F" stroke="#888" stroke-width="2" id="rect-ptu"/>
+                                    <text x="30" y="34" fill="#888" font-family="Inter" font-weight="bold" font-size="12" text-anchor="middle" id="txt-ptu">PTU</text>
+                                </g>
+
+                                <g transform="translate(100, 45)" class="digital-gauge font-16">
+                                    <text class="val green" x="0" y="0" id="txt-pres-green">3000</text>
+                                    <text class="lbl" x="45" y="0">PSI</text>
+                                </g>
+                                <g transform="translate(270, 45)" class="digital-gauge font-16">
+                                    <text class="val green" x="0" y="0" id="txt-pres-blue">3000</text>
+                                    <text class="lbl" x="45" y="0">PSI</text>
+                                </g>
+                                <g transform="translate(440, 45)" class="digital-gauge font-16">
+                                    <text class="val green" x="0" y="0" id="txt-pres-yellow">3000</text>
+                                    <text class="lbl" x="45" y="0">PSI</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- 4. PÁGINA APU (ATA 49) -->
+                        <div class="ecam-page" id="page-apu">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <g stroke="#333A4A" stroke-width="6" fill="none" stroke-linecap="round">
+                                    <path d="M 300 300 L 300 180" />
+                                    <path d="M 200 180 L 400 180" />
+                                </g>
+                                <g id="val-apu-page" class="valve-node closed" transform="translate(300, 240)">
+                                    <circle r="12" fill="#12141C" stroke="#FFF" stroke-width="2"/>
+                                    <line x1="-8" y1="0" x2="8" y2="0" class="valve-line" />
+                                </g>
+                                <g transform="translate(260, 90)">
+                                    <polygon points="20,60 40,10 60,60" fill="#1C212E" stroke="#3E475A" stroke-width="2" id="apu-page-shape"/>
+                                    <text x="40" y="48" fill="#888" font-family="Inter" font-size="13" font-weight="bold" text-anchor="middle" id="apu-page-text">APU</text>
+                                </g>
+                                <g transform="translate(200, 290)" class="digital-gauge font-16">
+                                    <text class="lbl" x="0" y="0">APU RPM</text>
+                                    <text class="val green" x="120" y="0" id="apu-val-rpm">0 %</text>
+                                    <text class="lbl" x="0" y="30">APU EGT</text>
+                                    <text class="val green" x="120" y="30" id="apu-val-egt">20 °C</text>
+                                    <text class="lbl" x="0" y="60">GEN STATUS</text>
+                                    <text class="val amber" x="120" y="60" id="apu-val-gen">OFF</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- 5. PÁGINA PRESS (ATA 21 - Presurización) -->
+                        <div class="ecam-page" id="page-press">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <g transform="translate(180, 100)">
+                                    <rect width="240" height="120" rx="10" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="120" y="35" fill="#FFF" font-family="Inter" font-size="14" font-weight="bold" text-anchor="middle">CABIN PRESSURE</text>
+                                    <text x="40" y="80" fill="#888" font-family="Inter" font-size="11">OUTFLOW VALVE</text>
+                                    <text x="160" y="80" fill="#00FF00" font-family="Roboto Mono" font-size="14" font-weight="bold" id="press-val-ofv">35% OPEN</text>
+                                </g>
+                                <g transform="translate(180, 250)" class="digital-gauge font-16">
+                                    <text class="lbl" x="0" y="0">CAB ALT</text>
+                                    <text class="val green" x="120" y="0" id="press-val-alt">8000 FT</text>
+                                    <text class="lbl" x="0" y="30">CAB V/S</text>
+                                    <text class="val green" x="120" y="30" id="press-val-vs">+50 FPM</text>
+                                    <text class="lbl" x="0" y="60">DELTA P</text>
+                                    <text class="val green" x="120" y="60" id="press-val-dp">5.2 PSI</text>
+                                    <text class="lbl" x="0" y="90">SYS SELECT</text>
+                                    <text class="val green" x="120" y="90">SYS 1 ACTIVE</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- 6. PÁGINA ENG (ATA 70) -->
+                        <div class="ecam-page" id="page-eng">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <g transform="translate(80, 50)">
+                                    <rect width="200" height="300" rx="10" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="100" y="30" fill="#00E5FF" font-family="Inter" font-size="16" text-anchor="middle" font-weight="bold">ENGINE 1</text>
+                                    <g transform="translate(20, 70)" class="digital-gauge font-16">
+                                        <text class="lbl" x="0" y="0">N1 %</text>
+                                        <text class="val green" x="100" y="0" id="eng-val-n1-1">66.5%</text>
+                                        <text class="lbl" x="0" y="30">N2 %</text>
+                                        <text class="val green" x="100" y="30" id="eng-val-n2-1">82.1%</text>
+                                        <text class="lbl" x="0" y="60">EGT °C</text>
+                                        <text class="val green" x="100" y="60" id="eng-val-egt-1">540°C</text>
+                                        <text class="lbl" x="0" y="90">F.F. KG/H</text>
+                                        <text class="val green" x="100" y="90" id="eng-val-ff-1">322</text>
+                                        <text class="lbl" x="0" y="120">OIL PRESS</text>
+                                        <text class="val green" x="100" y="120" id="eng-val-oil-1">62 PSI</text>
+                                    </g>
+                                </g>
+                                <g transform="translate(320, 50)">
+                                    <rect width="200" height="300" rx="10" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="100" y="30" fill="#00E5FF" font-family="Inter" font-size="16" text-anchor="middle" font-weight="bold">ENGINE 2</text>
+                                    <g transform="translate(20, 70)" class="digital-gauge font-16">
+                                        <text class="lbl" x="0" y="0">N1 %</text>
+                                        <text class="val green" x="100" y="0" id="eng-val-n1-2">66.5%</text>
+                                        <text class="lbl" x="0" y="30">N2 %</text>
+                                        <text class="val green" x="100" y="30" id="eng-val-n2-2">82.1%</text>
+                                        <text class="lbl" x="0" y="60">EGT °C</text>
+                                        <text class="val green" x="100" y="60" id="eng-val-egt-2">540°C</text>
+                                        <text class="lbl" x="0" y="90">F.F. KG/H</text>
+                                        <text class="val green" x="100" y="90" id="eng-val-ff-2">322</text>
+                                        <text class="lbl" x="0" y="120">OIL PRESS</text>
+                                        <text class="val green" x="100" y="120" id="eng-val-oil-2">62 PSI</text>
+                                    </g>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- ELEC PAGE (ATA 24) -->
+                        <div class="ecam-page" id="page-elec">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <!-- AC Generators -->
+                                <g transform="translate(80, 60)">
+                                    <rect width="130" height="75" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="65" y="22" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle" font-weight="bold">GEN 1</text>
+                                    <text x="65" y="44" fill="#00FF00" font-family="Roboto Mono" font-size="14" text-anchor="middle" font-weight="bold" id="elec-val-gen1-load">35%</text>
+                                    <text x="65" y="62" fill="#888" font-family="Roboto Mono" font-size="10" text-anchor="middle" id="elec-val-gen1-v">115 V  400 HZ</text>
+                                </g>
+                                <g transform="translate(390, 60)">
+                                    <rect width="130" height="75" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="65" y="22" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle" font-weight="bold">GEN 2</text>
+                                    <text x="65" y="44" fill="#00FF00" font-family="Roboto Mono" font-size="14" text-anchor="middle" font-weight="bold" id="elec-val-gen2-load">35%</text>
+                                    <text x="65" y="62" fill="#888" font-family="Roboto Mono" font-size="10" text-anchor="middle" id="elec-val-gen2-v">115 V  400 HZ</text>
+                                </g>
+                                <g transform="translate(235, 40)">
+                                    <rect width="130" height="75" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="65" y="22" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle" font-weight="bold">APU GEN</text>
+                                    <text x="65" y="44" fill="#FF9900" font-family="Roboto Mono" font-size="14" text-anchor="middle" font-weight="bold" id="elec-val-apugen-load">OFF</text>
+                                    <text x="65" y="62" fill="#888" font-family="Roboto Mono" font-size="10" text-anchor="middle" id="elec-val-apugen-v">0 V  0 HZ</text>
+                                </g>
+                                <!-- Batteries -->
+                                <g transform="translate(140, 290)">
+                                    <rect width="110" height="65" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="55" y="22" fill="#FFF" font-family="Inter" font-size="11" text-anchor="middle" font-weight="bold">BAT 1</text>
+                                    <text x="55" y="48" fill="#00FF00" font-family="Roboto Mono" font-size="15" text-anchor="middle" font-weight="bold" id="elec-val-bat1">27.8 V</text>
+                                </g>
+                                <g transform="translate(350, 290)">
+                                    <rect width="110" height="65" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="55" y="22" fill="#FFF" font-family="Inter" font-size="11" text-anchor="middle" font-weight="bold">BAT 2</text>
+                                    <text x="55" y="48" fill="#00FF00" font-family="Roboto Mono" font-size="15" text-anchor="middle" font-weight="bold" id="elec-val-bat2">27.8 V</text>
+                                </g>
+                                <!-- Buses schematic lines -->
+                                <g stroke="#333A4A" stroke-width="4" fill="none">
+                                    <path d="M 145 135 L 145 200 L 455 200 L 455 135" />
+                                    <path d="M 300 115 L 300 200" />
+                                    <path d="M 195 290 L 195 200" />
+                                    <path d="M 405 290 L 405 200" />
+                                </g>
+                                <!-- AC Bus Status Labels -->
+                                <g transform="translate(95, 185)">
+                                    <rect width="100" height="30" rx="3" fill="#090a0e" stroke="#00FF00" stroke-width="1.5" id="rect-ac-bus1" />
+                                    <text x="50" y="19" fill="#00FF00" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle">AC BUS 1</text>
+                                </g>
+                                <g transform="translate(405, 185)">
+                                    <rect width="100" height="30" rx="3" fill="#090a0e" stroke="#00FF00" stroke-width="1.5" id="rect-ac-bus2" />
+                                    <text x="50" y="19" fill="#00FF00" font-family="Roboto Mono" font-size="11" font-weight="bold" text-anchor="middle">AC BUS 2</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- FUEL PAGE (ATA 28) -->
+                        <div class="ecam-page" id="page-fuel">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <!-- Tanks schematic -->
+                                <!-- L Outer -->
+                                <g transform="translate(30, 140)">
+                                    <rect width="65" height="90" rx="3" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="32.5" y="25" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">L OUTR</text>
+                                    <text x="32.5" y="55" fill="#00FF00" font-family="Roboto Mono" font-size="13" text-anchor="middle" font-weight="bold" id="fuel-val-l-out">690 kg</text>
+                                </g>
+                                <!-- L Inner -->
+                                <g transform="translate(105, 120)">
+                                    <rect width="95" height="130" rx="3" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="47.5" y="25" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">L INNR</text>
+                                    <text x="47.5" y="70" fill="#00FF00" font-family="Roboto Mono" font-size="15" text-anchor="middle" font-weight="bold" id="fuel-val-l-in">2820 kg</text>
+                                    <!-- Pumps -->
+                                    <circle cx="32" cy="105" r="9" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="fuel-pump-l1"/>
+                                    <text x="32" y="108" fill="#00FF00" font-family="Roboto Mono" font-size="8" font-weight="bold" text-anchor="middle">1</text>
+                                    <circle cx="62" cy="105" r="9" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="fuel-pump-l2"/>
+                                    <text x="62" y="108" fill="#00FF00" font-family="Roboto Mono" font-size="8" font-weight="bold" text-anchor="middle">2</text>
+                                </g>
+                                <!-- Center Tank -->
+                                <g transform="translate(210, 130)">
+                                    <rect width="180" height="110" rx="3" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="90" y="25" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">CTR TANK</text>
+                                    <text x="90" y="65" fill="#00FF00" font-family="Roboto Mono" font-size="17" text-anchor="middle" font-weight="bold" id="fuel-val-ctr">1200 kg</text>
+                                    <!-- Pumps -->
+                                    <circle cx="70" cy="95" r="9" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="fuel-pump-c1"/>
+                                    <text x="70" y="98" fill="#00FF00" font-family="Roboto Mono" font-size="8" font-weight="bold" text-anchor="middle">1</text>
+                                    <circle cx="110" cy="95" r="9" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="fuel-pump-c2"/>
+                                    <text x="110" y="98" fill="#00FF00" font-family="Roboto Mono" font-size="8" font-weight="bold" text-anchor="middle">2</text>
+                                </g>
+                                <!-- R Inner -->
+                                <g transform="translate(400, 120)">
+                                    <rect width="95" height="130" rx="3" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="47.5" y="25" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">R INNR</text>
+                                    <text x="47.5" y="70" fill="#00FF00" font-family="Roboto Mono" font-size="15" text-anchor="middle" font-weight="bold" id="fuel-val-r-in">2820 kg</text>
+                                    <!-- Pumps -->
+                                    <circle cx="32" cy="105" r="9" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="fuel-pump-r1"/>
+                                    <text x="32" y="108" fill="#00FF00" font-family="Roboto Mono" font-size="8" font-weight="bold" text-anchor="middle">1</text>
+                                    <circle cx="62" cy="105" r="9" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="fuel-pump-r2"/>
+                                    <text x="62" y="108" fill="#00FF00" font-family="Roboto Mono" font-size="8" font-weight="bold" text-anchor="middle">2</text>
+                                </g>
+                                <!-- R Outer -->
+                                <g transform="translate(505, 140)">
+                                    <rect width="65" height="90" rx="3" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="32.5" y="25" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">R OUTR</text>
+                                    <text x="32.5" y="55" fill="#00FF00" font-family="Roboto Mono" font-size="13" text-anchor="middle" font-weight="bold" id="fuel-val-r-out">690 kg</text>
+                                </g>
+                                <!-- Total Fuel / FOB -->
+                                <g transform="translate(200, 290)">
+                                    <rect width="200" height="50" rx="5" fill="#090a0e" stroke="#3E475A" stroke-width="2" />
+                                    <text x="35" y="31" fill="#FFF" font-family="Inter" font-size="13" font-weight="bold">FOB:</text>
+                                    <text x="175" y="34" fill="#00FF00" font-family="Roboto Mono" font-size="20" font-weight="bold" text-anchor="end" id="fuel-val-fob">8220 kg</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- DOOR PAGE (ATA 52) -->
+                        <div class="ecam-page" id="page-door">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <!-- Aircraft Cabin outline -->
+                                <path d="M 230 70 C 230 30, 370 30, 370 70 L 370 340 C 370 380, 230 380, 230 340 Z" fill="none" stroke="#3E475A" stroke-width="2.5" />
+                                
+                                <!-- Left side doors -->
+                                <g transform="translate(160, 80)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-fwd-l"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">FWD L</text>
+                                </g>
+                                <g transform="translate(160, 160)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-em1-l"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">EMR L1</text>
+                                </g>
+                                <g transform="translate(160, 195)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-em2-l"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">EMR L2</text>
+                                </g>
+                                <g transform="translate(160, 280)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-aft-l"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">AFT L</text>
+                                </g>
+
+                                <!-- Right side doors -->
+                                <g transform="translate(380, 80)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-fwd-r"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">FWD R</text>
+                                </g>
+                                <g transform="translate(380, 160)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-em1-r"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">EMR R1</text>
+                                </g>
+                                <g transform="translate(380, 195)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-em2-r"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">EMR R2</text>
+                                </g>
+                                <g transform="translate(380, 280)">
+                                    <rect width="60" height="22" rx="3" fill="#12141C" stroke="#00FF00" stroke-width="1.5" id="rect-door-aft-r"/>
+                                    <text x="30" y="14" fill="#00FF00" font-family="Roboto Mono" font-size="9" text-anchor="middle">AFT R</text>
+                                </g>
+
+                                <!-- Cargo doors -->
+                                <g transform="translate(235, 115)">
+                                    <rect width="60" height="18" rx="2" fill="#12141C" stroke="#00FF00" stroke-width="1" id="rect-door-av"/>
+                                    <text x="30" y="12" fill="#00FF00" font-family="Roboto Mono" font-size="8" text-anchor="middle">AVIONICS</text>
+                                </g>
+                                <g transform="translate(305, 235)">
+                                    <rect width="55" height="18" rx="2" fill="#12141C" stroke="#00FF00" stroke-width="1" id="rect-door-cargo-f"/>
+                                    <text x="27.5" y="12" fill="#00FF00" font-family="Roboto Mono" font-size="8" text-anchor="middle">F.CRG</text>
+                                </g>
+                                <g transform="translate(305, 260)">
+                                    <rect width="55" height="18" rx="2" fill="#12141C" stroke="#00FF00" stroke-width="1" id="rect-door-cargo-a"/>
+                                    <text x="27.5" y="12" fill="#00FF00" font-family="Roboto Mono" font-size="8" text-anchor="middle">A.CRG</text>
+                                </g>
+
+                                <!-- Oxygen Pressure Indicator -->
+                                <g transform="translate(225, 340)" class="digital-gauge font-16">
+                                    <text class="lbl" x="0" y="0">OXY PRESS</text>
+                                    <text class="val green" x="110" y="0" id="door-val-oxy">1850 PSI</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- WHEEL PAGE (ATA 32) -->
+                        <div class="ecam-page" id="page-wheel">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <!-- Landing Gear Status (Triangles) -->
+                                <g transform="translate(260, 45)">
+                                    <polygon points="40,10 10,55 70,55" fill="#090a0e" stroke="#00FF00" stroke-width="3" id="wheel-gear-nose" />
+                                    <text x="40" y="70" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">N LG</text>
+                                </g>
+                                <g transform="translate(150, 130)">
+                                    <polygon points="40,10 10,55 70,55" fill="#090a0e" stroke="#00FF00" stroke-width="3" id="wheel-gear-left" />
+                                    <text x="40" y="70" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">L LG</text>
+                                </g>
+                                <g transform="translate(370, 130)">
+                                    <polygon points="40,10 10,55 70,55" fill="#090a0e" stroke="#00FF00" stroke-width="3" id="wheel-gear-right" />
+                                    <text x="40" y="70" fill="#FFF" font-family="Inter" font-size="10" text-anchor="middle">R LG</text>
+                                </g>
+
+                                <!-- Brake temperature, status -->
+                                <g transform="translate(120, 240)" class="digital-gauge">
+                                    <text class="lbl" x="0" y="0">BRAKE TEMP (L)</text>
+                                    <text class="val green" x="120" y="0" id="wheel-val-btemp-l">42 °C</text>
+                                    <text class="lbl" x="0" y="25">TYRE PRESS (L)</text>
+                                    <text class="val green" x="120" y="25">145 PSI</text>
+                                </g>
+                                <g transform="translate(340, 240)" class="digital-gauge">
+                                    <text class="lbl" x="0" y="0">BRAKE TEMP (R)</text>
+                                    <text class="val green" x="120" y="0" id="wheel-val-btemp-r">45 °C</text>
+                                    <text class="lbl" x="0" y="25">TYRE PRESS (R)</text>
+                                    <text class="val green" x="120" y="25">145 PSI</text>
+                                </g>
+
+                                <g transform="translate(230, 310)">
+                                    <rect width="140" height="35" rx="3" fill="#12141C" stroke="#3E475A" stroke-width="1.5" />
+                                    <text x="70" y="22" fill="#00FF00" font-family="Roboto Mono" font-size="12" text-anchor="middle" font-weight="bold">A/SKID: ON</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- F/CTL PAGE (ATA 27) -->
+                        <div class="ecam-page" id="page-fctl">
+                            <svg viewBox="0 0 600 450" class="synoptic-svg">
+                                <!-- Flight Control surfaces indicator -->
+                                <g transform="translate(70, 80)">
+                                    <rect width="200" height="80" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="100" y="25" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle" font-weight="bold">AILERONS</text>
+                                    <text x="50" y="55" fill="#888" font-family="Inter" font-size="11">LEFT</text>
+                                    <text x="150" y="55" fill="#888" font-family="Inter" font-size="11">RIGHT</text>
+                                    <text x="50" y="70" fill="#00FF00" font-family="Roboto Mono" font-size="12" text-anchor="middle" font-weight="bold">0°</text>
+                                    <text x="150" y="70" fill="#00FF00" font-family="Roboto Mono" font-size="12" text-anchor="middle" font-weight="bold">0°</text>
+                                </g>
+                                <g transform="translate(330, 80)">
+                                    <rect width="200" height="80" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="100" y="25" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle" font-weight="bold">ELEVATORS</text>
+                                    <text x="50" y="55" fill="#888" font-family="Inter" font-size="11">LEFT</text>
+                                    <text x="150" y="55" fill="#888" font-family="Inter" font-size="11">RIGHT</text>
+                                    <text x="50" y="70" fill="#00FF00" font-family="Roboto Mono" font-size="12" text-anchor="middle" font-weight="bold">0°</text>
+                                    <text x="150" y="70" fill="#00FF00" font-family="Roboto Mono" font-size="12" text-anchor="middle" font-weight="bold">0°</text>
+                                </g>
+                                <g transform="translate(200, 190)">
+                                    <rect width="200" height="80" rx="5" fill="#12141C" stroke="#3E475A" stroke-width="2" />
+                                    <text x="100" y="25" fill="#FFF" font-family="Inter" font-size="12" text-anchor="middle" font-weight="bold">RUDDER & PITCH TRIM</text>
+                                    <text x="50" y="50" fill="#888" font-family="Inter" font-size="10">RUDDER</text>
+                                    <text x="150" y="50" fill="#888" font-family="Inter" font-size="10">PITCH TRIM</text>
+                                    <text x="50" y="62" fill="#00FF00" font-family="Roboto Mono" font-size="12" text-anchor="middle" font-weight="bold">0°</text>
+                                    <text x="150" y="62" fill="#00FF00" font-family="Roboto Mono" font-size="12" text-anchor="middle" font-weight="bold">0.5° UP</text>
+                                </g>
+
+                                <!-- ELAC, SEC, FAC status -->
+                                <g transform="translate(130, 290)" class="digital-gauge font-16">
+                                    <text class="lbl" x="0" y="0">ELAC 1/2</text>
+                                    <text class="val green" x="90" y="0">ACTIVE</text>
+                                    <text class="lbl" x="180" y="0">SEC 1/2/3</text>
+                                    <text class="val green" x="280" y="0">ACTIVE</text>
+                                    <text class="lbl" x="0" y="25">FAC 1/2</text>
+                                    <text class="val green" x="90" y="25">ACTIVE</text>
+                                </g>
+                            </svg>
+                        </div>
+
+                        <!-- 7. PÁGINA DUMMY (Genérico) -->
+                        <div class="ecam-page" id="page-dummy">
+                            <div class="dummy-page-container" style="text-align: center; padding: 40px 20px;">
+                                <h2 id="dummy-page-name" style="color: var(--ecam-white); font-family: 'Roboto Mono', monospace; font-size: 24px; letter-spacing: 1.5px; margin-bottom: 20px; text-transform: uppercase;">ELEC</h2>
+                                <div class="dummy-card" style="border: 2px dashed #475569; background-color: rgba(26, 30, 39, 0.5); border-radius: 8px; padding: 40px 60px; display: inline-block;">
+                                    <p style="color: var(--ecam-green); font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: bold; margin-bottom: 12px; letter-spacing: 0.5px;">SYSTEM STATUS: NORMAL</p>
+                                    <p style="color: var(--ecam-blue); font-family: 'Roboto Mono', monospace; font-size: 11px;">AUTO-MONITORING ACTIVE THROUGH BMC / FADEC CHANNELS</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FOOTER ECAM COMPARTIDO (PARAMÉTRICO) -->
+                        <div class="ecam-footer" style="height: 25px; border-top: 1px solid #222; display: flex; justify-content: space-between; align-items: center; padding-top: 5px; font-family: 'Roboto Mono', monospace; font-size: 11px; color: var(--ecam-green); flex-shrink: 0;">
+                            <span>TAT <span class="white" id="ecam-foot-tat">-16</span> °C</span>
+                            <span>SAT <span class="white" id="ecam-foot-sat">-43</span> °C</span>
+                            <span class="white" id="ecam-foot-clock">17 H 26</span>
+                            <span>GW <span class="white" id="ecam-foot-gw">56100</span> KG</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TECLADO DE CONTROL DEL ECAM (ECP) -->
+                <div id="ecp-panel">
+                    <div class="ecp-row">
+                        <button class="ecp-btn" id="ecp-eng">ENG</button>
+                        <button class="ecp-btn active" id="ecp-bleed">BLEED</button>
+                        <button class="ecp-btn" id="ecp-press">PRESS</button>
+                        <button class="ecp-btn" id="ecp-elec">ELEC</button>
+                        <button class="ecp-btn" id="ecp-hyd">HYD</button>
+                        <button class="ecp-btn" id="ecp-fuel">FUEL</button>
+                    </div>
+                    <div class="ecp-row mt-1">
+                        <button class="ecp-btn" id="ecp-apu">APU</button>
+                        <button class="ecp-btn" id="ecp-cond">COND</button>
+                        <button class="ecp-btn" id="ecp-door">DOOR</button>
+                        <button class="ecp-btn" id="ecp-wheel">WHEEL</button>
+                        <button class="ecp-btn" id="ecp-fctl">F/CTL</button>
+                        <button class="ecp-btn" id="ecp-all">ALL</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- PANEL INFERIOR: INSTRUCTOR & CONSOLA DE FALLAS -->
+        <footer>
+            <div class="footer-section" id="instructor-failures">
+                <h3>🛠️ PANEL DEL INSTRUCTOR (INYECCIÓN DE FALLAS)</h3>
+                <div class="failure-controls">
+                    <div class="chk-group">
+                        <input type="checkbox" id="fail-eng1">
+                        <label for="fail-eng1">Fallo de Motor 1 (Parada total)</label>
+                    </div>
+                    <div class="chk-group">
+                        <input type="checkbox" id="fail-eng2">
+                        <label for="fail-eng2">Fallo de Motor 2 (Parada total)</label>
+                    </div>
+                    <div class="chk-group">
+                        <input type="checkbox" id="fail-apufire">
+                        <label for="fail-apufire">Fuego en APU (Falla / Extinción)</label>
+                    </div>
+                    <div class="chk-group">
+                        <input type="checkbox" id="fail-leak-wai">
+                        <label for="fail-leak-wai">Fuga Neumática en Ala (WING FAULT)</label>
+                    </div>
+                    <div class="chk-group">
+                        <input type="checkbox" id="fail-leak-green">
+                        <label for="fail-leak-green">Fuga en Depósito Hidráulico Verde</label>
+                    </div>
+                    <div class="chk-group">
+                        <input type="checkbox" id="sim-ice">
+                        <label for="sim-ice">Simular Condición de Hielo en Vuelo</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-section" id="technical-console">
+                <h3>📝 CONSOLA TÉCNICA (EXPLICACIÓN DEL ESTADO ACTUAL)</h3>
+                <div id="console-output">
+                    Iniciando sistemas del simulador Airbus A320... Todos los parámetros operativos normales (Dark Cockpit activo).
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- CARGA DE LÓGICA -->
+    <script src="script.js"></script>
+</body>
+</html>

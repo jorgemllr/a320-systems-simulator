@@ -1,0 +1,1024 @@
+/* ==========================================================================
+   AIRBUS A320 SIMULATOR STYLESHEET - PREMIUM DARK LUXURY / COCKPIT AESTHETIC
+   ========================================================================== */
+
+:root {
+    --bg-darkest: #07080b;
+    --bg-panel: #1e222b;
+    --bg-card: #353c48; /* Slate grey for Airbus panels */
+    --border-color: #1a1d24; /* Rail lines black shadow */
+    
+    /* Colores del Sistema Airbus */
+    --color-off: #ffffff;
+    --color-on: #0088ff;
+    --color-fault: #ff9900;
+    --color-ok: #00ff00;
+    --color-warning: #ff3333;
+    
+    /* ECAM Colors */
+    --ecam-bg: #090a0e;
+    --ecam-green: #00ff00;
+    --ecam-amber: #ff9900;
+    --ecam-white: #ffffff;
+    --ecam-blue: #00d2ff;
+    --ecam-red: #ff3333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body {
+    background-color: var(--bg-darkest);
+    color: #cbd5e1;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#app-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-darkest);
+    border: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+
+header {
+    height: 60px;
+    background-color: #12141c;
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    flex-shrink: 0;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-logo h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.header-logo .accent {
+    color: var(--color-on);
+}
+
+.sim-clock {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-ok);
+    background-color: #000;
+    padding: 4px 10px;
+    border: 1px stroke var(--border-color);
+    border-radius: 4px;
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.status-indicator {
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 3px;
+    border: 2px solid transparent;
+    color: rgba(255, 255, 255, 0.1);
+    background-color: #111;
+    transition: all 0.2s ease;
+}
+
+#master-caution.active {
+    background-color: #3b2800;
+    border-color: var(--color-fault);
+    color: var(--color-fault);
+    text-shadow: 0 0 5px var(--color-fault);
+    box-shadow: 0 0 8px rgba(255, 153, 0, 0.3);
+    animation: flash-warning 1s infinite alternate;
+}
+
+#master-warning.active {
+    background-color: #3d0000;
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+    text-shadow: 0 0 5px var(--color-warning);
+    box-shadow: 0 0 8px rgba(255, 51, 51, 0.3);
+    animation: flash-warning 0.5s infinite alternate;
+}
+
+@keyframes flash-warning {
+    0% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* ==========================================================================
+   MAIN LAYOUT
+   ========================================================================== */
+
+main {
+    flex: 1;
+    display: flex;
+    padding: 15px;
+    gap: 15px;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   LEFT SECTION: OVERHEAD PANELS
+   ========================================================================== */
+
+#overhead-panel {
+    flex: 1.1;
+    background-color: var(--bg-panel);
+    border: 2px solid #2e3547;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.panel-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #64748b;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 5px;
+}
+
+.panel-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.panel-grid::-webkit-scrollbar {
+    width: 6px;
+}
+.panel-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+.panel-grid::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+}
+.panel-grid::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Panel Structure (Korry Box) */
+.korry-panel {
+    background-color: var(--bg-card);
+    border: 2px solid #1a1d24;
+    border-radius: 6px;
+    padding: 18px 15px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+}
+
+/* DZUS Fasteners styling */
+.dzus-screw {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle at 3px 3px, #7f8c8d, #2c3e50);
+    border-radius: 50%;
+    border: 1px solid #111;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.5);
+    z-index: 5;
+}
+.dzus-screw::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 1.5px;
+    background-color: #111;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+.dzus-top-l { top: 8px; left: 8px; }
+.dzus-top-r { top: 8px; right: 8px; }
+.dzus-bot-l { bottom: 8px; left: 8px; }
+.dzus-bot-r { bottom: 8px; right: 8px; }
+
+/* Overhead Panel Components Styles */
+.panel-header-box {
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    color: #000000 !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 8.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 2px 5px;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    border-radius: 1px;
+    margin-bottom: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.panel-side-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    color: #8b9bb4;
+    letter-spacing: 1px;
+    line-height: 1.4;
+    text-align: center;
+    text-transform: uppercase;
+    width: 25px;
+    z-index: 5;
+    opacity: 0.7;
+}
+
+.panel-side-label span {
+    display: block;
+}
+
+.panel-side-label.left {
+    left: 8px;
+}
+
+.panel-side-label.right {
+    right: 8px;
+}
+
+.ram-air-guard-cage {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #ff3333;
+    background: repeating-linear-gradient(0deg, transparent, transparent 5px, #ff3333 5px, #ff3333 7px),
+                repeating-linear-gradient(90deg, transparent, transparent 5px, #ff3333 5px, #ff3333 7px);
+    background-color: rgba(255, 51, 51, 0.15);
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: transform 0.4s ease;
+    transform-origin: top;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ram-air-guard-cage.open {
+    transform: rotateX(110deg);
+}
+
+.korry-panel-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #8b9bb4;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    text-align: center;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 3px;
+}
+
+.panel-row {
+    flex: 1;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.panel-row.align-center {
+    align-items: center;
+}
+
+.panel-row.justify-space {
+    justify-content: space-between;
+}
+
+.panel-row.height-fill {
+    flex: 1;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+}
+
+.control-group.flex-col {
+    flex-direction: column;
+}
+
+.sub-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.control-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: #cbd5e1;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.sub-label {
+    font-size: 9px;
+    font-weight: 800;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.green-lbl { color: #00aa00; }
+.blue-lbl { color: #0077ff; }
+.yellow-lbl { color: #ccaa00; }
+
+/* ==========================================================================
+   KORRY PUSHBUTTONS
+   ========================================================================== */
+
+.korry-btn {
+    width: 46px;
+    height: 46px;
+    background-color: #1a1e27;
+    border: 3px solid #475569;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.4);
+    position: relative;
+    outline: none;
+    transition: border-color 0.15s ease, transform 0.05s ease;
+}
+
+.korry-btn:active {
+    transform: scale(0.96);
+}
+
+.korry-btn span {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: bold;
+    font-size: 8.5px;
+    width: 100%;
+    text-align: center;
+    display: block;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+}
+
+/* Double state label lights */
+.korry-btn .lbl-top {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.03); /* Unlit FAULT */
+}
+
+.korry-btn .lbl-bot {
+    color: rgba(255, 255, 255, 0.03); /* Unlit OFF/ON */
+}
+
+/* Estilos de luz cuando están activados */
+.korry-btn.off .lbl-bot {
+    color: var(--color-off); /* White OFF light */
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+.korry-btn.on .lbl-bot {
+    color: var(--color-on); /* Blue ON light */
+    text-shadow: 0 0 5px rgba(0, 136, 255, 0.9);
+}
+
+.korry-btn.fault .lbl-top {
+    color: var(--color-fault); /* Amber FAULT light */
+    text-shadow: 0 0 6px rgba(255, 153, 0, 0.9);
+    animation: alert-flash 1s infinite alternate;
+}
+
+@keyframes alert-flash {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Korry buttons that represent latching engine bleed or packs */
+.korry-btn.active {
+    border-color: #3b4252;
+}
+
+/* ==========================================================================
+   ROTARY KNOBS / SELECTORS
+   ========================================================================== */
+
+.rotary-switch {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.rotary-switch .knob {
+    width: 32px;
+    height: 32px;
+    background: radial-gradient(circle, #2d3446 0%, #151a24 100%);
+    border: 2px solid #475569;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.6);
+    transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Knob line indicator */
+.rotary-switch .knob::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 12px;
+    background-color: #fff;
+    top: 2px;
+    left: calc(50% - 2px);
+    border-radius: 1px;
+}
+
+/* Selector positions text */
+.rotary-switch .ticks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.rotary-switch .tick {
+    position: absolute;
+    font-size: 7.5px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+}
+
+.rotary-switch .tick.active {
+    color: var(--color-ok);
+    text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+}
+
+/* Position values styling for 3pos selector */
+.rotary-switch.selector-3pos {
+    width: 75px;
+    height: 75px;
+}
+.rotary-switch.selector-3pos .knob {
+    width: 38px;
+    height: 38px;
+}
+.selector-3pos .tick {
+    font-size: 8.5px;
+}
+.selector-3pos .tick:nth-child(1) { left: -12px; bottom: 12px; }  /* Left */
+.selector-3pos .tick:nth-child(2) { left: 50%; transform: translateX(-50%); top: -14px; }   /* Center */
+.selector-3pos .tick:nth-child(3) { right: -12px; bottom: 12px; } /* Right */
+
+/* Rotary switch rotations based on state values */
+.selector-3pos[data-pos="0"] .knob { transform: rotate(-45deg); }
+.selector-3pos[data-pos="1"] .knob { transform: rotate(0deg); }
+.selector-3pos[data-pos="2"] .knob { transform: rotate(45deg); }
+
+/* Temp knob styles */
+.temp-knobs-row {
+    display: flex;
+    gap: 8px;
+}
+
+.temp-knob {
+    width: 38px;
+    height: 38px;
+}
+
+.temp-knob .knob {
+    width: 24px;
+    height: 24px;
+}
+
+.temp-knob .knob-sub {
+    position: absolute;
+    font-size: 7px;
+    font-weight: 700;
+    color: #8b9bb4;
+    bottom: -15px;
+}
+
+/* ==========================================================================
+   HYDRAULIC RAT GUARD
+   ========================================================================== */
+
+.rat-switch-container {
+    position: relative;
+    width: 46px;
+    height: 46px;
+}
+
+.rat-guard {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 51, 51, 0.85);
+    border: 2px solid #8b0000;
+    border-radius: 4px;
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: transform 0.4s ease;
+    transform-origin: top;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rat-guard .guard-cap {
+    font-size: 7px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.rat-guard.open {
+    transform: rotateX(110deg);
+}
+
+.rat-btn {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1e27;
+    border: 2px solid #8b0000;
+    border-radius: 4px;
+    color: #ff3333;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rat-btn.active {
+    background-color: #ff3333;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 51, 51, 0.8);
+}
+
+/* ==========================================================================
+   RIGHT SECTION: MONITORING DISPLAY & ECP
+   ========================================================================== */
+
+#monitoring-display {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow: hidden;
+}
+
+.ecam-bezel {
+    flex: 1;
+    background-color: #1a1d24;
+    border: 15px solid #282d37;
+    border-radius: 12px;
+    padding: 2px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ecam-screen {
+    flex: 1;
+    background-color: var(--ecam-bg);
+    border-radius: 4px;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ECAM Headers */
+.ecam-header {
+    height: 35px;
+    border-bottom: 1px solid #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 5px;
+    flex-shrink: 0;
+}
+
+.ecam-header .page-title {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--ecam-white);
+    letter-spacing: 1px;
+}
+
+.ecam-memo-area {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ecam-memo-item {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 2px;
+}
+
+.ecam-memo-item.green {
+    color: var(--ecam-green);
+    border: 1px solid var(--ecam-green);
+}
+
+.ecam-memo-item.amber {
+    color: var(--ecam-amber);
+    border: 1px solid var(--ecam-amber);
+    animation: flash-warning 1s infinite alternate;
+}
+
+/* ECAM Pages */
+.ecam-page {
+    flex: 1;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.ecam-page.active {
+    display: flex;
+}
+
+.synoptic-svg {
+    width: 100%;
+    height: 100%;
+    max-height: 400px;
+}
+
+/* ==========================================================================
+   SVG SYNOPTIC SCHEMATICS
+   ========================================================================== */
+
+/* Pipes & Flows */
+.flow-path {
+    stroke-dasharray: 8, 8;
+    animation: flow-run 1.5s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.flow-path.active {
+    opacity: 1;
+}
+
+@keyframes flow-run {
+    to {
+        stroke-dashoffset: -16;
+    }
+}
+
+.flow-path.pneumatic {
+    stroke: #ff7700; /* Amber-orange hot air */
+}
+
+.flow-path.conditioning {
+    stroke: #00d2ff; /* Cyan cooled air */
+}
+
+.flow-path.recirc {
+    stroke: #667788; /* Gray recirculated air */
+}
+
+/* Solid green lines for the classroom CRT Bleed page */
+#page-bleed .flow-path {
+    stroke: var(--ecam-green) !important;
+    stroke-dasharray: none !important;
+    animation: none !important;
+    stroke-width: 2px !important;
+}
+
+.flow-path-static {
+    stroke-linecap: round;
+    transition: stroke 0.3s ease;
+}
+
+/* PTU Flow dash animations */
+.ptu-flow {
+    stroke-dasharray: 6, 6;
+    animation: flow-run 2s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.ptu-flow.active {
+    opacity: 1;
+}
+
+/* Valve states */
+.valve-node circle {
+    stroke: var(--ecam-green);
+    fill: #090a0e;
+    transition: stroke 0.3s ease;
+}
+
+.valve-node line {
+    stroke: var(--ecam-green);
+    stroke-width: 2.2;
+    transform-origin: 0px 0px;
+    transition: stroke 0.3s ease, transform 0.3s ease;
+}
+
+/* Default vertical valve rotation */
+.valve-node.open line {
+    transform: rotate(90deg); /* align parallel to vertical line */
+}
+
+.valve-node.closed line {
+    transform: rotate(0deg); /* perpendicular to vertical line */
+}
+
+/* Horizontal valves (crossbleed, HP) rotation */
+.valve-node.valve-horizontal.open line {
+    transform: rotate(0deg); /* align parallel to horizontal line */
+}
+
+.valve-node.valve-horizontal.closed line {
+    transform: rotate(90deg); /* perpendicular to horizontal line */
+}
+
+/* Fault/Transit states (amber circle and line) */
+.valve-node.fault circle {
+    stroke: var(--ecam-amber);
+}
+
+.valve-node.fault line {
+    stroke: var(--ecam-amber);
+}
+
+/* Gauges & Text inside ECAM */
+.digital-gauge text {
+    font-family: 'Roboto Mono', monospace;
+}
+
+.digital-gauge .lbl {
+    fill: #778899;
+    font-size: 11px;
+}
+
+.digital-gauge .val {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* General value coloring */
+.val.green { fill: var(--ecam-green); }
+.val.amber { fill: var(--ecam-amber); }
+.val.white { fill: var(--ecam-white); }
+
+.digital-gauge .val.green { fill: var(--ecam-green); }
+.digital-gauge .val.amber { fill: var(--ecam-amber); }
+.digital-gauge .val.white { fill: var(--ecam-white); }
+
+.digital-gauge.font-16 .val {
+    font-size: 16px;
+}
+
+.wai-arrow-text {
+    font-family: 'Roboto Mono', monospace;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.wai-arrow-text.active {
+    opacity: 1;
+}
+
+/* ECP (ECAM CONTROL PANEL) BUTTONS */
+#ecp-panel {
+    background-color: #1e222d;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.ecp-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ecp-btn {
+    flex: 1;
+    height: 28px;
+    background: linear-gradient(to bottom, #2d3446 0%, #151a24 100%);
+    border: 1px solid #475569;
+    border-radius: 3px;
+    color: #fff;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ecp-btn:active {
+    background: #111;
+}
+
+.ecp-btn.active {
+    border-color: var(--color-ok);
+    box-shadow: inset 0 0 4px rgba(0, 255, 0, 0.5), 0 0 6px rgba(0, 255, 0, 0.3);
+}
+
+/* ==========================================================================
+   FOOTER (INSTRUCTOR PANEL & CONSOLA)
+   ========================================================================== */
+
+footer {
+    height: 160px;
+    background-color: #12141c;
+    border-top: 2px solid var(--border-color);
+    padding: 12px 20px;
+    display: flex;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.footer-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.footer-section h3 {
+    font-size: 11px;
+    font-weight: bold;
+    color: #8b9bb4;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+/* Failure Checks Layout */
+.failure-controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    overflow-y: auto;
+}
+
+.chk-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.chk-group input[type="checkbox"] {
+    accent-color: var(--color-warning);
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+}
+
+.chk-group label {
+    font-size: 11px;
+    color: #cbd5e1;
+    cursor: pointer;
+}
+
+/* Technical Console output styling */
+#technical-console {
+    border-left: 2px solid var(--border-color);
+    padding-left: 20px;
+}
+
+#console-output {
+    flex: 1;
+    background-color: #050608;
+    border: 1px solid #1e222d;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--ecam-blue);
+    overflow-y: auto;
+    white-space: pre-line;
+    line-height: 1.4;
+}
+
+.mt-1 { margin-top: 5px; }
+.mt-2 { margin-top: 10px; }
+.ml-1 { margin-left: 5px; }
+.mr-1 { margin-right: 5px; }
+
+/* New ECAM Pages layout styles */
+#page-elec, #page-fuel, #page-door, #page-wheel, #page-fctl {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+}
+
+#page-elec.active, #page-fuel.active, #page-door.active, #page-wheel.active, #page-fctl.active {
+    display: flex;
+}
+
+/* Responsive vertical stack for narrower viewport widths */
+@media (max-width: 1200px) {
+    main {
+        flex-direction: column;
+        overflow-y: auto;
+        align-items: center;
+    }
+    body {
+        overflow-y: auto;
+        height: auto;
+    }
+    #app-container {
+        height: auto;
+        min-height: 100vh;
+    }
+    #monitoring-display {
+        width: 100%;
+        max-width: 600px;
+        height: 550px;
+        flex-shrink: 0;
+    }
+    #overhead-panel {
+        width: 100%;
+        max-width: 600px;
+        flex-shrink: 0;
+    }
+}
+
