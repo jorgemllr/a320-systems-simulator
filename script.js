@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
             apuFire: false,
             leakWAI: false,
             leakGreenRes: false,
+            leakBleed: false,
             simIce: false
         },
 
@@ -147,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
         failApuFire: document.getElementById("fail-apufire"),
         failLeakWAI: document.getElementById("fail-leak-wai"),
         failLeakGreen: document.getElementById("fail-leak-green"),
+        failLeakBleed: document.getElementById("fail-leak-bleed"),
         simIce: document.getElementById("sim-ice"),
         consoleOutput: document.getElementById("console-output")
     };
@@ -341,6 +343,11 @@ document.addEventListener("DOMContentLoaded", () => {
         logToConsole(`INSTRUCTOR: Fuga en depósito hidráulico Verde ${e.target.checked ? "ACTIVADA" : "DESACTIVADA"}`);
         runSystemPhysics();
     });
+    elements.failLeakBleed.addEventListener("change", (e) => {
+        state.failures.leakBleed = e.target.checked;
+        logToConsole(`INSTRUCTOR: Fuga neumática en Motor 1 (Bleed Leak) ${e.target.checked ? "ACTIVADA" : "DESACTIVADA"}`);
+        runSystemPhysics();
+    });
     elements.simIce.addEventListener("change", (e) => {
         state.failures.simIce = e.target.checked;
         logToConsole(`INSTRUCTOR: Simulación de condición de formación de hielo ${e.target.checked ? "ACTIVADA" : "DESACTIVADA"}`);
@@ -448,7 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 2. FÍSICA NEUMÁTICA (BLEED - ATA 36)
         // Válvulas de sangrado abren si se comanda ON (latching/lights out = true) y el motor está corriendo
-        const eng1BleedOpen = state.controls.eng1Bleed && state.engines[1].running;
+        const eng1BleedOpen = state.controls.eng1Bleed && state.engines[1].running && !state.failures.leakBleed;
         const eng2BleedOpen = state.controls.eng2Bleed && state.engines[2].running;
         const apuBleedOpen = state.controls.apuBleed && state.apu.running;
 
@@ -646,8 +653,8 @@ document.addEventListener("DOMContentLoaded", () => {
         let masterCautionActive = false;
         let masterWarningActive = false;
 
-        // Caution: Fuga de WAI, Falla de motor, Fallo de bomba hidráulica, o Icing sin WAI
-        if (state.failures.leakWAI || state.failures.leakGreenRes || !state.engines[1].running || !state.engines[2].running) {
+        // Caution: Fuga de WAI, Falla de motor, Fallo de bomba hidráulica, Icing sin WAI o Fuga Neumática de Bleed
+        if (state.failures.leakWAI || state.failures.leakGreenRes || state.failures.leakBleed || !state.engines[1].running || !state.engines[2].running) {
             masterCautionActive = true;
         }
         // Warning: Fuego en APU
@@ -672,8 +679,8 @@ document.addEventListener("DOMContentLoaded", () => {
         toggleKorryLights(elements.btnPack2, !state.controls.pack2, "off", false);
         toggleKorryLights(elements.btnHotAir, !state.controls.hotAir, "off", false);
 
-        // Engine Bleeds (FAULT en ámbar si falla el motor con el bleed puesto)
-        const bleed1Fault = state.controls.eng1Bleed && !state.engines[1].running;
+        // Engine Bleeds (FAULT en ámbar si falla el motor con el bleed puesto, o si hay fuga)
+        const bleed1Fault = (state.controls.eng1Bleed && !state.engines[1].running) || state.failures.leakBleed;
         const bleed2Fault = state.controls.eng2Bleed && !state.engines[2].running;
         toggleKorryLights(elements.btnEng1Bleed, !state.controls.eng1Bleed, "off", bleed1Fault);
         toggleKorryLights(elements.btnEng2Bleed, !state.controls.eng2Bleed, "off", bleed2Fault);
@@ -703,6 +710,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // ── ACTUALIZAR SINÓPTICO ECAM BLEED (Pág. BLEED) ──
         if (state.activePage === "bleed") {
+            // Manejar estilo FAULT ámbar en válvula de purga de motor 1 por fuga
+            const valEng1Bleed = document.getElementById("val-eng1-bleed-sd");
+            if (valEng1Bleed) {
+                if (state.failures.leakBleed) {
+                    valEng1Bleed.classList.add("fault");
+                } else {
+                    valEng1Bleed.classList.remove("fault");
+                }
+            }
+
             // Válvulas
             setValveState("val-eng1-bleed-sd", eng1BleedOpen);
             setValveState("val-eng2-bleed-sd", eng2BleedOpen);
