@@ -343,11 +343,13 @@ document.addEventListener("DOMContentLoaded", () => {
         logToConsole(`INSTRUCTOR: Fuga en depósito hidráulico Verde ${e.target.checked ? "ACTIVADA" : "DESACTIVADA"}`);
         runSystemPhysics();
     });
-    elements.failLeakBleed.addEventListener("change", (e) => {
-        state.failures.leakBleed = e.target.checked;
-        logToConsole(`INSTRUCTOR: Fuga neumática en Motor 1 (Bleed Leak) ${e.target.checked ? "ACTIVADA" : "DESACTIVADA"}`);
-        runSystemPhysics();
-    });
+    if (elements.failLeakBleed) {
+        elements.failLeakBleed.addEventListener("change", (e) => {
+            state.failures.leakBleed = e.target.checked;
+            logToConsole(`INSTRUCTOR: Fuga neumática en Motor 1 (Bleed Leak) ${e.target.checked ? "ACTIVADA" : "DESACTIVADA"}`);
+            runSystemPhysics();
+        });
+    }
     elements.simIce.addEventListener("change", (e) => {
         state.failures.simIce = e.target.checked;
         logToConsole(`INSTRUCTOR: Simulación de condición de formación de hielo ${e.target.checked ? "ACTIVADA" : "DESACTIVADA"}`);
